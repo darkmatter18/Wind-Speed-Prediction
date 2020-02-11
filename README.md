@@ -2,6 +2,11 @@
 
 ## Dataset Description:
 
+The datasets contain the weather of Berlin, Germany `(lat = 52.5246, lon = 13.3946)` from `1995` to `2004`
+
+- `dataset-maonthly.csv` contains the Month wise dataset (1)
+- `dataset-daily.csv` contains day by day dataset (2)
+
 Despriction of Both the datasets `dataset-daily.csv` and `dataset-maonthly.csv` has given below:
 
 |             | time                      | air_temperature_mean | pressure | wind_direction | wind_speed |
