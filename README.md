@@ -1,6 +1,8 @@
 # Wind-Speed-Prediction
 
-## Dataset Description:
+## Datasets:
+
+### Description:
 
 The datasets contain the weather of **Berlin, Germany** `(lat = 52.5246, lon = 13.3946)` from `1995` to `2004`
 
@@ -21,12 +23,12 @@ Despriction of Both the datasets `dataset-daily.csv` and `dataset-maonthly.csv` 
 - (1) - is the monthly dataset
 - (2) - is the daily dataset
 
-## Other Content:
+### Other Content:
 
-- ### Create-Dataset notebooks
+- #### Create-Dataset notebooks
     1. create-dataset-daily.ipynb
     2. create-dataset-daily.ipynb
 
-- ### Testing notebooks
+- #### Testing notebooks
     1.  netCDF-test-monthly.ipynb
 
