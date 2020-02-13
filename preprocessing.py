@@ -4,12 +4,13 @@ import pandas as pd
 from sklearn import preprocessing
 from torch.utils.data import Dataset
 
-def normalize_df(dataframe):
+def Normalize_df(dataframe):
     df_copy = dataframe.copy()
+    cols = df_copy.columns
     min_max_scaler = preprocessing.MinMaxScaler()
     df_scaled = min_max_scaler.fit_transform(df_copy)
     
-    return pd.DataFrame(df_scaled)
+    return pd.DataFrame(df_scaled, columns=cols)
 
 class WindSpeedDataset(Dataset):
     def __init__(self, dataframe, suffle=False, transform=None):
