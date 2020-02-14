@@ -100,7 +100,7 @@ class Model(nn.Module):
     
     def save(self, path, save_optim=False, cuda=False):
         try:
-            os.mkdir(path)
+            os.mkdir(os.path.join('model', path))
             print(path, " - dir Created")
         except FileExistsError:
             print(path, " - dir Already exists")
