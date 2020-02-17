@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import math
 import torch
 import numpy as np
 import pandas as pd
@@ -29,7 +30,6 @@ def Normalize_df(dataframe):
 class WindSpeedDataset(Dataset):
     def __init__(self, dataframe, transform=None):
         dataframe1 = dataframe.copy()
-        self.suffle = suffle
         self.transform = transform
         
         if 'time' in dataframe1:
@@ -59,27 +59,30 @@ class WindSpeedDataset(Dataset):
         return sample
     
 class WindSpeedDatasetTimeSeries(Dataset):
-    def __init__(self, dataframe, window_size=6, stride=1 transform=None):
+    def __init__(self, dataframe, window_size=6, transform=None):
         dataframeC = dataframe.copy()
 
-        self.suffle = suffle
         self.transform = transform
         self.window_size = window_size
-        self.stride = stride
         
         if 'time' in dataframeC:
-            dataframe1.pop('time')
+            dataframeC.pop('time')
+            
+        if 'wind_speed' in dataframeC:
+            self.labelset = dataframeC.pop('wind_speed')
+            
+        self.featureset = dataframeC
 
     def __len__(self):
-        return len(self.dataframeC) - self.window_size + self.stride
+        return math.floor(len(self.featureset) - self.window_size) + 1
     
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         # print(idx)
         
-        label = np.array([self.labelset.iloc[idx]])
-        features = self.featureset.iloc[idx].to_numpy()
+        label = np.array([self.labelset.iloc[idx:idx+self.window_size]]).T
+        features = self.featureset.iloc[idx:idx+self.window_size].to_numpy()
         
         sample = (features, label)
         
