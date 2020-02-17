@@ -27,8 +27,7 @@ class Model(nn.Module):
                             hidden_size=hidden_size,
                             num_layers=num_layers,
                             batch_first= True,
-                            dropout = 0.2)
-        self.drop1 = nn.Dropout(p=0.2)
+                            dropout = 0)
         
         self.fc2 = nn.Linear(hidden_size, 50)
         self.drop2 = nn.Dropout(p=0.2)
@@ -43,10 +42,10 @@ class Model(nn.Module):
         
     def forward(self, x):
         self.hidden = self.init_hidden(x.shape[0])
-        x = x.unsqueeze(1)
+        # x = x.unsqueeze(1)
         
         x, self.hidden = self.lstm1(x, self.hidden)
-        x = self.drop1(x)
+        # x = self.drop1(x)
         
         x = self.drop2(F.relu(self.fc2(x)))
         
@@ -74,8 +73,9 @@ class Model(nn.Module):
                 self.optimizer.zero_grad()
         
                 output = self.forward(data)
-                loss = self.criterion(output, target.unsqueeze(1))
-        
+                # loss = self.criterion(output.view(-1, 1), target.view(-1))
+                loss = self.criterion(output, target)
+                
                 loss.backward()
                 self.optimizer.step()
         
@@ -91,7 +91,7 @@ class Model(nn.Module):
                             if self.cuda:
                                 data, target = data.cuda(), target.cuda()
                             ps = self.forward(data)
-                            testloss += self.criterion(ps, target.unsqueeze(1)).item()
+                            testloss += self.criterion(ps, target).item()
                         testloss = testloss / len(validationloader)        
                     trainloss = trainloss / len(trainloader)
         
@@ -132,10 +132,10 @@ class Model(nn.Module):
             print(path, " - dir Already exists")
         finally:
             NAME = 'model_cuda.pt' if self.cuda else 'model_cpu.pt'
-            torch.save(self.state_dict(), os.path.join(path, NAME))
+            torch.save(self.state_dict(), os.path.join('model', path, NAME))
             print('Model saved in', path)
             if save_optim:
                 NAME = 'optim_cuda.pt' if self.cuda else 'optim_cpu.pt'
-                torch.save(self.optimizer.state_dict(), os.path.join(path, NAME))
+                torch.save(self.optimizer.state_dict(), os.path.join('model', path, NAME))
                 print('Optimizer saved in', path)
         return
