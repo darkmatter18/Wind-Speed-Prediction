@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import math
 import torch
 import numpy as np
 import pandas as pd
@@ -27,14 +28,13 @@ def Normalize_df(dataframe):
     return pd.DataFrame(df_scaled, columns=cols)
 
 class WindSpeedDataset(Dataset):
-    def __init__(self, dataframe, suffle=False, transform=None):
-        self.dataframe = dataframe.copy()
+    def __init__(self, dataframe, transform=None):
         dataframe1 = dataframe.copy()
-        self.suffle = suffle
         self.transform = transform
         
         if 'time' in dataframe1:
             dataframe1.pop('time')
+        
         if 'wind_speed' in dataframe1:
             self.labelset = dataframe1.pop('wind_speed')
             
@@ -52,6 +52,39 @@ class WindSpeedDataset(Dataset):
         features = self.featureset.iloc[idx].to_numpy()
         
         sample =(features, label)
+        
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+    
+class WindSpeedDatasetTimeSeries(Dataset):
+    def __init__(self, dataframe, window_size=6, transform=None):
+        dataframeC = dataframe.copy()
+
+        self.transform = transform
+        self.window_size = window_size
+        
+        if 'time' in dataframeC:
+            dataframeC.pop('time')
+            
+        if 'wind_speed' in dataframeC:
+            self.labelset = dataframeC.pop('wind_speed')
+            
+        self.featureset = dataframeC
+
+    def __len__(self):
+        return math.floor(len(self.featureset) - self.window_size) + 1
+    
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        # print(idx)
+        
+        label = np.array([self.labelset.iloc[idx:idx+self.window_size]]).T
+        features = self.featureset.iloc[idx:idx+self.window_size].to_numpy()
+        
+        sample = (features, label)
         
         if self.transform:
             sample = self.transform(sample)
