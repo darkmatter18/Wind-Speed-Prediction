@@ -27,14 +27,14 @@ def Normalize_df(dataframe):
     return pd.DataFrame(df_scaled, columns=cols)
 
 class WindSpeedDataset(Dataset):
-    def __init__(self, dataframe, suffle=False, transform=None):
-        self.dataframe = dataframe.copy()
+    def __init__(self, dataframe, transform=None):
         dataframe1 = dataframe.copy()
         self.suffle = suffle
         self.transform = transform
         
         if 'time' in dataframe1:
             dataframe1.pop('time')
+        
         if 'wind_speed' in dataframe1:
             self.labelset = dataframe1.pop('wind_speed')
             
@@ -52,6 +52,36 @@ class WindSpeedDataset(Dataset):
         features = self.featureset.iloc[idx].to_numpy()
         
         sample =(features, label)
+        
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+    
+class WindSpeedDatasetTimeSeries(Dataset):
+    def __init__(self, dataframe, window_size=6, stride=1 transform=None):
+        dataframeC = dataframe.copy()
+
+        self.suffle = suffle
+        self.transform = transform
+        self.window_size = window_size
+        self.stride = stride
+        
+        if 'time' in dataframeC:
+            dataframe1.pop('time')
+
+    def __len__(self):
+        return len(self.dataframeC) - self.window_size + self.stride
+    
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        # print(idx)
+        
+        label = np.array([self.labelset.iloc[idx]])
+        features = self.featureset.iloc[idx].to_numpy()
+        
+        sample = (features, label)
         
         if self.transform:
             sample = self.transform(sample)
