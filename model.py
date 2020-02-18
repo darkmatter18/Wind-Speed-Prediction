@@ -23,6 +23,11 @@ class Model(nn.Module):
         
         self.cuda = cuda
         self.hidden_size = hidden_size
+        
+        # self.conv1 = nn.Conv1d(6, 18, 1)
+        # self.pool1 = nn.MaxPool1d(1)
+        #self.drop1 = nn.Dropout(p=0.2)
+        
         self.lstm1 = nn.LSTM(input_size=input_size,
                             hidden_size=hidden_size,
                             num_layers=num_layers,
@@ -42,7 +47,9 @@ class Model(nn.Module):
         
     def forward(self, x):
         self.hidden = self.init_hidden(x.shape[0])
-        # x = x.unsqueeze(1)
+        
+        # x = self.pool1(F.relu(self.conv1(x)))
+        # x = self.drop1(x)
         
         x, self.hidden = self.lstm1(x, self.hidden)
         # x = self.drop1(x)
@@ -115,10 +122,10 @@ class Model(nn.Module):
                 data = data.type(torch.FloatTensor)
                 if self.cuda:
                     data, label = data.cuda(), label.cuda()
-                for res in self.forward(data).tolist():
-                    result.append(res[0])
-                for expt in label.tolist():
-                    expected.append(expt[0])
+                for res in self.forward(data).cpu().numpy().flatten():
+                    result.append(res.item())
+                for expt in label.cpu().numpy().flatten():
+                    expected.append(expt.item())
         
         self.result = result
         self.expected = expected
