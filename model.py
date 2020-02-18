@@ -17,6 +17,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from utils import Progbar
+
 class Model(nn.Module):
     def __init__(self,input_size, hidden_size, num_layers, cuda=False):
         super(Model, self).__init__()
@@ -70,6 +72,7 @@ class Model(nn.Module):
         
         for epoch in range(epochs):
             trainloss = 0
+            progbar = Progbar(target=len(trainloader) - 1)
             for batch, (data, target) in enumerate(trainloader):
                 self.train()
                 data = data.type(torch.FloatTensor)
@@ -104,11 +107,12 @@ class Model(nn.Module):
         
                 trainlosses.append(trainloss)
                 testlosses.append(testloss)
-        
-                print(f'Epoch: {epoch+1}',
-                      f'Batch: {batch} out of {len(trainloader)}',
-                      f'Training Loss: {trainloss}',
-                      f'Test Loss: {testloss}')
+                
+                progbar.update(current=batch, values=[('Epoch', epoch+1), ('Training Loss', trainloss), ('Test Loss', testloss)])
+#                 print(f'Epoch: {epoch+1}',
+#                       f'Batch: {batch} out of {len(trainloader)}',
+#                       f'Training Loss: {trainloss}',
+#                       f'Test Loss: {testloss}')
         self.trainlosses = trainlosses
         self.testlosses = testlosses
         return (trainlosses, testlosses)
