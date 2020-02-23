@@ -25,18 +25,19 @@ class Model(nn.Module):
         
         lstm_drop = 0.2 if lstm_num_layers > 1 else 0 
         
+        self.lstm_num_layers = lstm_num_layers
         self.cuda = cuda
         self.hidden_size = hidden_size
         
         # self.conv1 = nn.Conv1d(6, 18, 1)
         # self.pool1 = nn.MaxPool1d(1)
-        #self.drop1 = nn.Dropout(p=0.2)
         
         self.lstm1 = nn.LSTM(input_size=input_size,
                             hidden_size=hidden_size,
                             num_layers=lstm_num_layers,
                             batch_first= True,
                             dropout = lstm_drop)
+        self.drop1 = nn.Dropout(p=0.2)
         
         self.fc2 = nn.Linear(hidden_size, 50)
         self.drop2 = nn.Dropout(p=0.2)
@@ -46,8 +47,8 @@ class Model(nn.Module):
 
     def init_hidden(self, batch_size):
         device = torch.device('cuda') if self.cuda else torch.device('cpu')
-        return (torch.zeros(1, batch_size, self.hidden_size, device = device),
-                torch.zeros(1, batch_size, self.hidden_size, device = device))
+        return (torch.zeros(self.lstm_num_layers, batch_size, self.hidden_size, device = device),
+                torch.zeros(self.lstm_num_layers, batch_size, self.hidden_size, device = device))
         
     def forward(self, x):
         self.hidden = self.init_hidden(x.shape[0])
@@ -56,7 +57,7 @@ class Model(nn.Module):
         # x = self.drop1(x)
         
         x, self.hidden = self.lstm1(x, self.hidden)
-        # x = self.drop1(x)
+        x = self.drop1(x)
         
         x = self.drop2(F.relu(self.fc2(x)))
         
