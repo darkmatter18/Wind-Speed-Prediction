@@ -58,7 +58,7 @@ class WindSpeedDataset(Dataset):
 
         return sample
     
-class WindSpeedDatasetTimeSeries(Dataset):
+class WindSpeedTimeSeriesDataset(Dataset):
     def __init__(self, dataframe, window_size=6, transform=None):
         dataframeC = dataframe.copy()
 
