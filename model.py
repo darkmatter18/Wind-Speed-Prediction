@@ -20,8 +20,10 @@ import torch.nn.functional as F
 from utils import Progbar
 
 class Model(nn.Module):
-    def __init__(self,input_size, hidden_size, num_layers, cuda=False):
+    def __init__(self,input_size, hidden_size, lstm_num_layers, cuda=False):
         super(Model, self).__init__()
+        
+        lstm_drop = 0.2 if lstm_num_layers > 1 else 0 
         
         self.cuda = cuda
         self.hidden_size = hidden_size
@@ -32,9 +34,9 @@ class Model(nn.Module):
         
         self.lstm1 = nn.LSTM(input_size=input_size,
                             hidden_size=hidden_size,
-                            num_layers=num_layers,
+                            num_layers=lstm_num_layers,
                             batch_first= True,
-                            dropout = 0)
+                            dropout = lstm_drop)
         
         self.fc2 = nn.Linear(hidden_size, 50)
         self.drop2 = nn.Dropout(p=0.2)
