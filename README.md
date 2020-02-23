@@ -32,3 +32,17 @@ Despriction of Both the datasets `dataset-daily.csv` and `dataset-maonthly.csv` 
 - #### Testing notebooks
     1.  netCDF-test-monthly.ipynb
 
+## Maintainer
+
+[![Relative date](https://img.shields.io/date/1577392258?color=important&label=started&logo=github)](https://github.com/darkmatter18/) [![Maintenance](https://img.shields.io/maintenance/yes/2020?color=green&logo=github)](https://github.com/darkmatter18/)
+
+[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/0)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/0)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/1)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/1)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/2)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/2)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/3)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/3)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/4)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/4)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/5)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/5)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/6)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/6)[![](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/images/7)](https://sourcerer.io/fame/darkmatter18/darkmatter18/Wind-Speed-Prediction/links/7)
+
+**[Arkadip Bhattacharya](https://www.linkedin.com/in/arkadip/)**
+
+<a href="https://twitter.com/Arkadipb21"><img src="images/twitter.png" width="32px" height="32px"></a> <a href="https://www.facebook.com/arkadipb"><img src="images/facebook.png" width="32px" height="32px"></a> <a href="https://www.linkedin.com/in/arkadip/"><img src="images/linkedin.png" width="32px" height="32px"></a>
+
+> ***Need help?***
+***Feel free to contact me @ [in2arkadipb13@gmail.com](mailto:in2arkadipb13@gmail.com?Subject=Github:Udacity-Computer-Vision-Nanodegree-Repository)***
+
+[![GitHub followers](https://img.shields.io/github/followers/darkmatter18?color=1e88e5&label=Follow%20%40darkmatter18&logo=github&style=flat-square)](https://github.com/darkmatter18/) [![Twitter Follow](https://img.shields.io/twitter/follow/Arkadipb21?color=1e88e5&logo=twitter&style=flat-square)](https://twitter.com/Arkadipb21) 
