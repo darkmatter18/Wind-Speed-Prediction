@@ -81,7 +81,7 @@ class WindSpeedTimeSeriesDataset(Dataset):
             idx = idx.tolist()
         # print(idx)
         
-        label = np.array([self.labelset.iloc[idx:idx+self.window_size]]).T
+        label = np.array([self.labelset.iloc[idx:idx+self.window_size]])
         features = self.featureset.iloc[idx:idx+self.window_size].to_numpy()
         
         sample = (features, label)
