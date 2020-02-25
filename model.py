@@ -20,29 +20,34 @@ import torch.nn.functional as F
 from utils import Progbar
 
 class Model(nn.Module):
-    def __init__(self,input_size, hidden_size, lstm_num_layers, cuda=False):
+    def __init__(self,input_size = 3, lstm_input_size = 51, lstm_hidden_size = 102, time_series = 6, lstm_num_layers = 1, cuda=False):
         super(Model, self).__init__()
         
         lstm_drop = 0.2 if lstm_num_layers > 1 else 0 
         
         self.lstm_num_layers = lstm_num_layers
         self.cuda = cuda
-        self.hidden_size = hidden_size
+        self.hidden_size = lstm_hidden_size
         
-        # self.conv1 = nn.Conv1d(6, 18, 1)
-        # self.pool1 = nn.MaxPool1d(1)
+        # Model Architucture Starts
+        self.conv1 = nn.Conv1d(time_series, 18, 1)
+        self.pool1 = nn.MaxPool1d(1)
+        self.drop1 = nn.Dropout(p=0.2)
         
-        self.lstm1 = nn.LSTM(input_size=input_size,
-                            hidden_size=hidden_size,
+        self.fc2 = nn.Linear(18 * input_size, lstm_input_size)
+        self.drop2 = nn.Dropout(p=0.2)
+        
+        self.lstm3 = nn.LSTM(input_size=lstm_input_size,
+                            hidden_size=lstm_hidden_size,
                             num_layers=lstm_num_layers,
                             batch_first= True,
                             dropout = lstm_drop)
-        self.drop1 = nn.Dropout(p=0.2)
+        self.drop3 = nn.Dropout(p=0.2)
         
-        self.fc2 = nn.Linear(hidden_size, 50)
-        self.drop2 = nn.Dropout(p=0.2)
+        self.fc4 = nn.Linear(lstm_hidden_size, lstm_input_size)
+        self.drop4 = nn.Dropout(p=0.2)
         
-        self.fc3 = nn.Linear(50, 1)
+        self.fc5 = nn.Linear(lstm_input_size, time_series)
         
 
     def init_hidden(self, batch_size):
@@ -53,15 +58,21 @@ class Model(nn.Module):
     def forward(self, x):
         self.hidden = self.init_hidden(x.shape[0])
         
-        # x = self.pool1(F.relu(self.conv1(x)))
-        # x = self.drop1(x)
-        
-        x, self.hidden = self.lstm1(x, self.hidden)
+        x = self.pool1(F.relu(self.conv1(x)))
         x = self.drop1(x)
         
-        x = self.drop2(F.relu(self.fc2(x)))
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc2(x))
+        x = self.drop2(x)
         
-        x = self.fc3(x)
+        x = x.unsqueeze(1)
+        
+        x, self.hidden = self.lstm3(x, self.hidden)
+        x = self.drop3(x)
+        
+        x = self.drop4(F.relu(self.fc4(x)))
+        
+        x = self.fc5(x)
         
         return x
     
