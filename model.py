@@ -121,6 +121,7 @@ class Model(nn.Module):
                         
                         ps = self.forward(data)
                         testloss += self.criterion(ps, target).item()
+                
                 testloss = testloss / len(validationloader)        
                 trainloss = trainloss / len(trainloader)
         
@@ -191,9 +192,9 @@ class Model(nn.Module):
                 
     def errors(self, testloader):
         self.eval()
-        mae = 0
-        mse = 0
-        mape = 0
+        mae = torch.Tensor([0])
+        rmse = torch.Tensor([0])
+        mape = torch.Tensor([0])
 
         for f, l in testloader:
             f = f.type(torch.FloatTensor)
@@ -202,14 +203,18 @@ class Model(nn.Module):
             if self.cuda:
                 f, l = f.cuda(), l.cuda()
             
-            mae += F.l1_loss(self.forward(f), l).item()
-            mse += torch.sqrt(F.mse_loss(self.forward(f), l)).item()
-            mape += torch.mean(torch.abs((l - self.forward(f)) / l)).item()
-    
+            mae += F.l1_loss(self.forward(f), l)
+            rmse += F.mse_loss(self.forward(f), l)
+            mape += torch.mean(torch.abs((l - self.forward(f)) / l))
+        
+        # Mean in values
         mae /= len(testloader)
-        mse /= len(testloader)
+        rmse /= len(testloader)
         mape /= len(testloader)
-
-        print("MAE: ", mae)
-        print("MSE: ", mse)
-        print("MAPE: ", mape)
+        
+        # square rooting the end result
+        rmse = torch.sqrt(rmse)
+        
+        print(f"MAE: {round(mae.item(), 4)}")
+        print(f"RMSE: {round(rmse.item(), 4)}")
+        print(f"MAPE: {round(mape.item() * 100, 4)} %")
