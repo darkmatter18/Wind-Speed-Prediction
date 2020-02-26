@@ -10,24 +10,5 @@ Model(
   (fc4): Linear(in_features=102, out_features=51, bias=True)
   (drop4): Dropout(p=0.2, inplace=False)
   (fc5): Linear(in_features=51, out_features=6, bias=True)
-  (criterion): SmoothL1Loss()
 )
 
-Loss: SmoothL1Loss()
-Optimizer:
-Adam (
-Parameter Group 0
-    amsgrad: False
-    betas: (0.9, 0.999)
-    eps: 1e-08
-    lr: 0.001
-    weight_decay: 0
-)
-
-Hypterparameters:
-input_size: 3
-lstm_input_size: 51
-hidden_size: 102
-time_series: 6
-lstm_num_layers: 1
-cuda: True
