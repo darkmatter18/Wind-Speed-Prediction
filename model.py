@@ -25,9 +25,12 @@ class Model(nn.Module):
         
         lstm_drop = 0.2 if lstm_num_layers > 1 else 0 
         
+        self.input_size = input_size
+        self.lstm_input_size = lstm_input_size
+        self.hidden_size = lstm_hidden_size
+        self.time_series = time_series
         self.lstm_num_layers = lstm_num_layers
         self.cuda = cuda
-        self.hidden_size = lstm_hidden_size
         
         # Model Architucture Starts
         self.conv1 = nn.Conv1d(time_series, 18, 1)
@@ -77,18 +80,22 @@ class Model(nn.Module):
         return x
     
     
-    def fit(self, trainloader, validationloader, loss, optim, lr, epochs, val_per_batch):
+    def fit(self, trainloader, validationloader, criterion, optimizer, epochs, val_per_batch):
         trainlosses = []
         testlosses = []
 
-        self.criterion = loss()
-        self.optimizer = optim(params=self.parameters(), lr=lr)
+        self.criterion = criterion
+        self.optimizer = optimizer
         
         for epoch in range(epochs):
-            trainloss = 0
             progbar = Progbar(target=len(trainloader) - 1)
+            
             for batch, (data, target) in enumerate(trainloader):
+                trainloss = 0
+                testloss = 0
+                
                 self.train()
+                
                 data = data.type(torch.FloatTensor)
                 target = target.type(torch.FloatTensor)
                 if self.cuda:
@@ -97,36 +104,30 @@ class Model(nn.Module):
                 self.optimizer.zero_grad()
         
                 output = self.forward(data)
-                # loss = self.criterion(output.view(-1, 1), target.view(-1))
                 loss = self.criterion(output, target)
                 
                 loss.backward()
                 self.optimizer.step()
         
-                trainloss += loss.item()
-        
-                if batch % val_per_batch == 0:
-                    testloss = 0
-                    self.eval()
-                    with torch.no_grad():
-                        for data, target in validationloader:
-                            data = data.type(torch.FloatTensor)
-                            target = target.type(torch.FloatTensor)
-                            if self.cuda:
-                                data, target = data.cuda(), target.cuda()
-                            ps = self.forward(data)
-                            testloss += self.criterion(ps, target).item()
-                        testloss = testloss / len(validationloader)        
-                    trainloss = trainloss / len(trainloader)
+                trainloss = loss.item()
+                
+                self.eval()
+                with torch.no_grad():
+                    for data, target in validationloader:
+                        data = data.type(torch.FloatTensor)
+                        target = target.type(torch.FloatTensor)
+                        if self.cuda:
+                            data, target = data.cuda(), target.cuda()
+                        
+                        ps = self.forward(data)
+                        testloss += self.criterion(ps, target).item()
+                testloss = testloss / len(validationloader)        
+                trainloss = trainloss / len(trainloader)
         
                 trainlosses.append(trainloss)
                 testlosses.append(testloss)
                 
                 progbar.update(current=batch, values=[('Epoch', epoch+1), ('Training Loss', trainloss), ('Test Loss', testloss)])
-#                 print(f'Epoch: {epoch+1}',
-#                       f'Batch: {batch} out of {len(trainloader)}',
-#                       f'Training Loss: {trainloss}',
-#                       f'Test Loss: {testloss}')
         self.trainlosses = trainlosses
         self.testlosses = testlosses
         return (trainlosses, testlosses)
@@ -149,18 +150,66 @@ class Model(nn.Module):
         self.expected = expected
         return (result, expected)
     
-    def save(self, path, save_optim=False):
+    def save_dict(self, path, save_optim=False):
         try:
             os.mkdir(os.path.join('model', path))
             print(path, " - dir Created")
         except FileExistsError:
             print(path, " - dir Already exists")
         finally:
-            NAME = 'model_cuda.pt' if self.cuda else 'model_cpu.pt'
-            torch.save(self.state_dict(), os.path.join('model', path, NAME))
+            torch.save(self.state_dict(), os.path.join('model', path, 'model.pt'))
             print('Model saved in', path)
             if save_optim:
-                NAME = 'optim_cuda.pt' if self.cuda else 'optim_cpu.pt'
-                torch.save(self.optimizer.state_dict(), os.path.join('model', path, NAME))
+                torch.save(self.optimizer.state_dict(), os.path.join('model', path, 'optim.pt'))
                 print('Optimizer saved in', path)
         return
+    
+    def save_summary(self, path):
+        try:
+            os.mkdir(os.path.join('model', path))
+            print(path, " - dir Created")
+        except FileExistsError:
+            print(path, " - dir Already exists")
+        finally:
+            try:
+                with open(os.path.join('model', path, 'summary.txt'), 'w+') as f:
+                    f.write('Model Architecture:\n')
+                    f.write(str(self) + '\n\n')
+                    f.write("Loss: " + str(self.criterion) + "\n")
+                    f.write("Optimizer:\n" + str(self.optimizer) + "\n\n")
+                    f.write("Hypterparameters:\n")
+                    f.write("input_size: " + str(self.input_size) + "\n")
+                    f.write("lstm_input_size: " + str(self.lstm_input_size) + "\n")
+                    f.write("hidden_size: " + str(self.hidden_size) + "\n")
+                    f.write("time_series: " + str(self.time_series) + "\n")
+                    f.write("lstm_num_layers: " + str(self.lstm_num_layers) + "\n")
+                    f.write("cuda: " + str(self.cuda))
+            except:
+                print("Saving Failed")
+            else:
+                print("Summary Saved!")
+                
+    def errors(self, testloader):
+        self.eval()
+        mae = 0
+        mse = 0
+        mape = 0
+
+        for f, l in testloader:
+            f = f.type(torch.FloatTensor)
+            l = l.type(torch.FloatTensor)
+            
+            if self.cuda:
+                f, l = f.cuda(), l.cuda()
+            
+            mae += F.l1_loss(self.forward(f), l).item()
+            mse += torch.sqrt(F.mse_loss(self.forward(f), l)).item()
+            mape += torch.mean(torch.abs((l - self.forward(f)) / l)).item()
+    
+        mae /= len(testloader)
+        mse /= len(testloader)
+        mape /= len(testloader)
+
+        print("MAE: ", mae)
+        print("MSE: ", mse)
+        print("MAPE: ", mape)
