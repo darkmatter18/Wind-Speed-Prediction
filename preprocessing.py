@@ -69,19 +69,19 @@ class WindSpeedTimeSeriesDataset(Dataset):
             dataframeC.pop('time')
             
         if 'wind_speed' in dataframeC:
-            self.labelset = dataframeC.pop('wind_speed')
+            self.labelset = dataframeC['wind_speed']
             
         self.featureset = dataframeC
 
     def __len__(self):
-        return math.floor(len(self.featureset) - self.window_size) + 1
+        return math.floor(len(self.featureset) - self.window_size) - 1
     
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         # print(idx)
         
-        label = np.array([self.labelset.iloc[idx:idx+self.window_size]])
+        label = np.array([self.labelset.iloc[idx+self.window_size]])
         features = self.featureset.iloc[idx:idx+self.window_size].to_numpy()
         
         sample = (features, label)
